@@ -8,6 +8,7 @@
 #    Date      Name                    Description of Change
 # 25-Jan-2023  Wayne Shih              Initial create
 # 25-Jan-2023  Wen Shih                Add a new job
+# 25-Jan-2023  Wayne Shih              Add a bad job
 # $HISTORY$
 # =================================================================================================
 
@@ -24,3 +25,7 @@ run-unit-tests:
 
   after_script:
     - echo "Job has finished. cleaning up..."
+
+bad_job:
+  script:
+    - this is a bad job!!!
