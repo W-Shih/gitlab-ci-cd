@@ -9,23 +9,48 @@
 # 25-Jan-2023  Wayne Shih              Initial create
 # 25-Jan-2023  Wen Shih                Add a new job
 # 25-Jan-2023  Wayne Shih              Add a bad job
+# 25-Jan-2023  Wayne Shih              Add stages
 # $HISTORY$
 # =================================================================================================
 
+stages:
+  - hello-world
+  - install
+  - linter-and-testing
+  - build
+  - deploy
+
 hello-world:
+  stage: hello-world
   script:
     - echo "hello world, GitLab!!!"
 
+npm-install:
+  stage: install
+  script:
+    - echo "npm install"
+
 run-unit-tests:
+  stage: linter-and-testing
   script:
     - echo "running unit tests..."
 
-  before_script:
-    - echo "npm install"
-
-  after_script:
-    - echo "Job has finished. cleaning up..."
-
-bad_job:
+run-linter:
+  stage: linter-and-testing
   script:
-    - this is a bad job!!!
+    - echo "running linter..."
+
+build-service:
+  stage: build
+  script:
+    - echo "building service app..."
+
+build-image:
+  stage: build
+  script:
+    - echo "building docker image..."
+
+deploy:
+  stage: deploy
+  script:
+    - echo "deploying..."
