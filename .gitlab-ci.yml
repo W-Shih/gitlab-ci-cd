@@ -10,6 +10,7 @@
 # 25-Jan-2023  Wen Shih                Add a new job
 # 25-Jan-2023  Wayne Shih              Add a bad job
 # 25-Jan-2023  Wayne Shih              Add stages
+# 25-Jan-2023  Wayne Shih              Add dependency between stage jobs
 # $HISTORY$
 # =================================================================================================
 
@@ -47,6 +48,8 @@ build-service:
 
 build-image:
   stage: build
+  needs:
+    - build-service
   script:
     - echo "building docker image..."
 
