@@ -11,6 +11,7 @@
 # 25-Jan-2023  Wayne Shih              Add a bad job
 # 25-Jan-2023  Wayne Shih              Add stages
 # 25-Jan-2023  Wayne Shih              Add dependency between stage jobs
+# 25-Jan-2023  Wayne Shih              Run run.sh at hello-world
 # $HISTORY$
 # =================================================================================================
 
@@ -25,6 +26,7 @@ hello-world:
   stage: hello-world
   script:
     - echo "hello world, GitLab!!!"
+    - bash ./run.sh
 
 npm-install:
   stage: install
