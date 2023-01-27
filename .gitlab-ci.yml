@@ -12,6 +12,7 @@
 # 25-Jan-2023  Wayne Shih              Add stages
 # 25-Jan-2023  Wayne Shih              Add dependency between stage jobs
 # 25-Jan-2023  Wayne Shih              Run run.sh at hello-world
+# 26-Jan-2023  Wayne Shih              Add only and expect branch to jobs
 # $HISTORY$
 # =================================================================================================
 
@@ -23,6 +24,9 @@ stages:
   - deploy
 
 hello-world:
+  except:
+    - main
+    - dev
   stage: hello-world
   script:
     - echo "hello world, GitLab!!!"
@@ -44,11 +48,17 @@ run-linter:
     - echo "running linter..."
 
 build-service:
+  only:
+    - main
+    - dev
   stage: build
   script:
     - echo "building service app..."
 
 build-image:
+  only:
+    - main
+    - dev
   stage: build
   needs:
     - build-service
@@ -56,6 +66,8 @@ build-image:
     - echo "building docker image..."
 
 deploy:
+  only:
+    - main
   stage: deploy
   script:
     - echo "deploying..."
