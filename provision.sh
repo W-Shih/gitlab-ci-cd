@@ -7,6 +7,7 @@
 # =================================================================================================
 #    Date      Name                    Description of Change
 # 14-Feb-2023  Wayne Shih              Initial create
+# 14-Feb-2023  Wayne Shih              Create superuser
 # $HISTORY$
 # =================================================================================================
 
@@ -52,8 +53,29 @@ sudo mysql -u root << EOF
 	ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourpassword';
 	flush privileges;
 	show databases;
-	CREATE DATABASE IF NOT EXISTS twitter;
+	CREATE DATABASE IF NOT EXISTS user_service;
 EOF
+
+
+# Set superuser for django backend management
+# superuser name
+USER="admin"
+# superuser password
+PASS="admin"
+# superuser email
+MAIL="admin@twitter.com"
+script="
+from django.contrib.auth.models import User;
+username = '$USER';
+password = '$PASS';
+email = '$MAIL';
+if not User.objects.filter(username=username).exists():
+	User.objects.create_superuser(username, email, password);
+	print( 'Superuser created.' );
+else:
+	print( 'Superuser creation skipped.' );
+"
+printf " $script"  | python manage.py shell
 
 
 echo 'All Done!'
