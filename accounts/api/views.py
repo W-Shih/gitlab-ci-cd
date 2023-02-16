@@ -10,14 +10,27 @@
 # =================================================================================================
 #    Date      Name                    Description of Change
 # 15-Feb-2023  Wayne Shih              Initial create
+# 16-Feb-2023  Wayne Shih              Add AccountViewSet
 # $HISTORY$
 # =================================================================================================
 
-from django.contrib.auth.models import User
-from rest_framework import viewsets
-from rest_framework import permissions
 
-from accounts.api.serializers import UserSerializer
+from django.contrib.auth import (
+    authenticate as django_authenticate,
+    login as django_login,
+    logout as django_logout,
+)
+from django.contrib.auth.models import User
+from rest_framework import viewsets, status
+from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from accounts.api.serializers import (
+    LoginSerializer,
+    SignupSerializer,
+    UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -26,5 +39,124 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer  # the class to render the data to json
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
     
+
+# <Wayne Shih> 16-Feb-2023
+# - Don't derive class from ModelViewSet. It has read/write operations. This is dangerous!
+# - Just derive class from ViewSet. ViewSet has no read/write operations.
+#   In this case, we need to write our own operations.
+# - Django rest framework url pattern: /resource/action/
+class AccountViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        return Response({
+            'message': {
+                'Get login status': {
+                    'method': 'GET',
+                    'url': '/api/accounts/login_status/',
+                },
+                'Log out': {
+                    'method': 'POST',
+                    'url': '/api/accounts/logout/',
+                },
+                'Log in': {
+                    'method': 'POST',
+                    'url': '/api/accounts/login/',
+                },
+                'Sign up': {
+                    'method': 'POST',
+                    'url': '/api/accounts/signup/',
+                },
+            }
+        }, status=status.HTTP_200_OK)
+
+    # <Wayne Shih> 16-Feb-2023
+    # - This operation maps /accounts/login_status
+    # - detail refers to if this operation is on an specific resource obj
+    #   If true, then this operation maps /accounts/{user_id}/login_status
+    #   In this case, another argument pk needs to be passed in login_status()
+    # - methods refer to a list of http actions that allow
+    #   If an http action is not on the list, then it will return 405 - 'Method Not Allowed'
+    @action(methods=['GET'], detail=False)
+    def login_status(self, request):
+        """
+        Check current login status 
+        """
+        data = {'has_logged_in': request.user.is_authenticated}
+        if request.user.is_authenticated:
+            data['user'] = UserSerializer(request.user).data
+        return Response(data)
+    
+    # <Wayne Shih> 16-Feb-2023
+    # Ref: https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.logout
+    @action(methods=['POST'], detail=False)
+    def logout(self, request):
+        """
+        Logout current user
+        """
+        django_logout(request)
+        return Response({'success': True})
+
+    @action(methods=['POST'], detail=False)
+    def signup(self, request):
+        """
+        Give username, email, password to sign up a new user
+        """
+        # <Wayne Shih> 16-Feb-2023
+        # get post data
+        serializer = SignupSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'message': 'Please check input.',
+                'errors': serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # <Wayne Shih> 16-Feb-2023
+        # If data got, create a new user and login
+        user = serializer.save()
+        django_login(request, user)
+        return Response({
+            'success': True,
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+    
+    # <Wayne Shih> 16-Feb-2023
+    # Ref:
+    # - https://www.django-rest-framework.org/api-guide/serializers/#field-level-validation
+    # - https://docs.djangoproject.com/en/3.2/topics/auth/default/#how-to-log-a-user-in
+    # - https://docs.djangoproject.com/en/3.2/ref/contrib/auth/#attributes
+    @action(methods=['POST'], detail=False)
+    def login(self, request):
+        """
+        Login
+        """
+        # <Wayne Shih> 16-Feb-2023
+        # get username and password from request
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'message': 'Please check input.',
+                'errors': serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # <Wayne Shih> 16-Feb-2023
+        # If validation is OK, then get user
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+        user = django_authenticate(username=username, password=password)
+        if not user or user.is_anonymous:
+            return Response({
+                'success': False,
+                'message': 'Username and password do not match.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # <Wayne Shih> 16-Feb-2023
+        # If user got, login
+        django_login(request, user)
+        return Response({
+            'success': True,
+            'user': UserSerializer(user).data
+        })
