@@ -8,8 +8,10 @@
 #    Date      Name                    Description of Change
 # 14-Feb-2023  Wayne Shih              Initial settings, modify DATABASES and ALLOWED_HOSTS
 # 15-Feb-2023  Wayne Shih              Add rest_framework, and pagination
+# 15-Feb-2023  Wayne Shih              Add account
 # $HISTORY$
 # =================================================================================================
+
 
 """
 Django settings for user_service project.
@@ -53,7 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # third party
     'rest_framework',
+
+    # project apps
+    'accounts',
 ]
 
 REST_FRAMEWORK = {
