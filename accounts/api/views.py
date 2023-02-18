@@ -2,7 +2,7 @@
 #                                  All Rights Reserved.
 # =================================================================================================
 # File description:
-#       In other frameworks you may also find conceptually similar implementations named 
+#       In other frameworks you may also find conceptually similar implementations named
 #       something like 'Resources' or 'Controllers'.
 #
 #       Ref: https://www.django-rest-framework.org/api-guide/viewsets/
@@ -11,7 +11,7 @@
 #    Date      Name                    Description of Change
 # 15-Feb-2023  Wayne Shih              Initial create
 # 16-Feb-2023  Wayne Shih              Add AccountViewSet
-# 16-Feb-2023  Wayne Shih              Add some comments
+# 16-Feb-2023  Wayne Shih              Add some comments and fix lint
 # $HISTORY$
 # =================================================================================================
 
@@ -44,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
     # Set permission_classes
     # - https://www.django-rest-framework.org/api-guide/permissions/#api-reference
     permission_classes = (permissions.IsAuthenticated,)
-    
+
 
 # <Wayne Shih> 16-Feb-2023
 # - Don't derive class from ModelViewSet. It has read/write operations. This is dangerous!
@@ -85,7 +85,7 @@ class AccountViewSet(viewsets.ViewSet):
     @action(methods=['GET'], detail=False)
     def login_status(self, request):
         """
-        Check current login status 
+        Check current login status
         """
         # <Wayne Shih> 16-Feb-2023
         # 'django.contrib.auth.middleware.AuthenticationMiddleware' adds user attribute to request.
@@ -97,14 +97,15 @@ class AccountViewSet(viewsets.ViewSet):
         if request.user.is_authenticated:
             # <Wayne Shih> 16-Feb-2023
             # - Add 'user' attribute to data.
-            # - UserSerializer converts request.user obj to json and store this converted json on its data attribute.
+            # - UserSerializer converts request.user obj to json and store this converted
+            #   json on its data attribute.
             # - https://www.django-rest-framework.org/api-guide/serializers/#serializing-objects
             data['user'] = UserSerializer(request.user).data
 
         # <Wayne Shih> 16-Feb-2023
         # Response(data) converts data to json and return.
         return Response(data)
-    
+
     # <Wayne Shih> 16-Feb-2023
     # Ref: https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.logout
     @action(methods=['POST'], detail=False)
@@ -145,8 +146,8 @@ class AccountViewSet(viewsets.ViewSet):
         return Response({
             'success': True,
             'user': UserSerializer(user).data
-        }, status=status.HTTP_200_OK)
-    
+        }, status=status.HTTP_201_CREATED)
+
     # <Wayne Shih> 16-Feb-2023
     # Ref:
     # - https://www.django-rest-framework.org/api-guide/serializers/#field-level-validation
