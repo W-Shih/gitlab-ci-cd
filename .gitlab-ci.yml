@@ -13,6 +13,7 @@
 # 25-Jan-2023  Wayne Shih              Add dependency between stage jobs
 # 25-Jan-2023  Wayne Shih              Run run.sh at hello-world
 # 26-Jan-2023  Wayne Shih              Add only and expect branch to jobs
+# 11-Apr-2023  Wayne Shih              Add and use env variables
 # $HISTORY$
 # =================================================================================================
 
@@ -23,18 +24,24 @@ stages:
   - build
   - deploy
 
+variables:
+  name: "Wayne - Global"
+
 hello-world:
+  variables:
+    name: "Wen - Local"
   except:
     - main
     - dev
   stage: hello-world
   script:
-    - echo "hello world, GitLab!!!"
+    - echo "hello $name, GitLab!!!"
     - bash ./run.sh
 
 npm-install:
   stage: install
   script:
+    - echo "$name"
     - echo "npm install"
 
 run-unit-tests:
@@ -66,8 +73,13 @@ build-image:
     - echo "building docker image..."
 
 deploy:
-  only:
-    - main
   stage: deploy
   script:
     - echo "deploying..."
+    # <Wayne Shih> 11-Apr-2023
+    # PRODUCTION_URL is defined in GitLab repo CI/CD variables
+    - echo "$PRODUCTION_URL"
+  rules:
+    # GitLat predefined variables:
+    # - https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+    - if: $CI_COMMIT_BRANCH == "main"
