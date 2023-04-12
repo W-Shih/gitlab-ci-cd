@@ -14,6 +14,7 @@
 # 25-Jan-2023  Wayne Shih              Run run.sh at hello-world
 # 26-Jan-2023  Wayne Shih              Add only and expect branch to jobs
 # 11-Apr-2023  Wayne Shih              Add and use env variables
+# 11-Apr-2023  Wayne Shih              Define images for jobs
 # $HISTORY$
 # =================================================================================================
 
@@ -23,6 +24,8 @@ stages:
   - linter-and-testing
   - build
   - deploy
+
+image: alpine:3.17.3
 
 variables:
   name: "Wayne - Global"
@@ -36,18 +39,21 @@ hello-world:
   stage: hello-world
   script:
     - echo "hello $name, GitLab!!!"
-    - bash ./run.sh
+    - sh ./run.sh
 
 npm-install:
+  image: python:alpine3.17
   stage: install
   script:
     - echo "$name"
+    - python3 --version
     - echo "npm install"
 
-run-unit-tests:
+run-unit-tests:  
   stage: linter-and-testing
   script:
     - echo "running unit tests..."
+    - python3 --version
 
 run-linter:
   stage: linter-and-testing
