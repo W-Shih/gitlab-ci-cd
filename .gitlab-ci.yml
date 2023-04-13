@@ -15,6 +15,7 @@
 # 26-Jan-2023  Wayne Shih              Add only and expect branch to jobs
 # 11-Apr-2023  Wayne Shih              Add and use env variables
 # 11-Apr-2023  Wayne Shih              Define images for jobs
+# 12-Apr-2023  Wayne Shih              Specify runner to use
 # $HISTORY$
 # =================================================================================================
 
@@ -49,11 +50,14 @@ npm-install:
     - python3 --version
     - echo "npm install"
 
-run-unit-tests:  
+run-unit-tests:
+  tags:
+    - wshih-local-runner
   stage: linter-and-testing
   script:
     - echo "running unit tests..."
-    - python3 --version
+    - uname
+    - ls -la
 
 run-linter:
   stage: linter-and-testing
