@@ -15,7 +15,8 @@
 # 26-Jan-2023  Wayne Shih              Add only and expect branch to jobs
 # 11-Apr-2023  Wayne Shih              Add and use env variables
 # 11-Apr-2023  Wayne Shih              Define images for jobs
-# 12-Apr-2023  Wayne Shih              Specify runner to use
+# 12-Apr-2023  Wayne Shih              Specify specific runner to use
+# 13-Apr-2023  Wayne Shih              Specify group runner to use
 # $HISTORY$
 # =================================================================================================
 
@@ -60,6 +61,11 @@ run-unit-tests:
     - ls -la
 
 run-linter:
+  # <Wayne Shih> 14-Apr-2023
+  # Gitlab doesn't support runner1 OR runner2
+  # - https://docs.gitlab.com/ee/ci/yaml/index.html#tags
+  tags:
+    - group-runner-wshih
   stage: linter-and-testing
   script:
     - echo "running linter..."
